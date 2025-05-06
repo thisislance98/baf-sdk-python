@@ -8,12 +8,48 @@ A Python SDK wrapper for the Project Agent Builder (BAF) API that provides an ea
 2. Install the required dependencies:
 
 ```bash
-pip install httpx
+pip install httpx python-dotenv
 ```
 
 ## Setup
 
-You need to set up your BAF credentials as environment variables:
+You can set up your BAF credentials in three ways:
+
+### Option 1: Using a JSON Credentials File
+
+The SDK can automatically load credentials from a JSON file (recommended approach):
+
+```python
+import asyncio
+from baf_client import BAFClient
+
+# Create BAF client with credentials file path
+baf = BAFClient("path/to/agent-binding.json", "My Agent")
+
+async def main():
+    # Create and use the agent
+    agent = await baf.create_agent(
+        initial_instructions="You are a helpful assistant.",
+        expert_in="Providing information"
+    )
+    
+    response = await agent("What is the capital of France?")
+    print(response)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+The SDK will automatically cache the credentials path after the first use, so you can omit the path in future runs:
+
+```python
+# After the first run with a valid credentials path
+baf = BAFClient(name="My Agent")  # Uses cached credentials
+```
+
+### Option 2: Using Environment Variables
+
+Set up your BAF credentials as environment variables:
 
 ```bash
 export BAF_CLIENT_ID="your-client-id"
@@ -22,12 +58,23 @@ export BAF_AUTH_URL="your-auth-url"
 export BAF_API_BASE_URL="your-api-base-url"
 ```
 
-These values can be found in your BAF service key. Note that the variable names have changed from older versions:
-- Use `BAF_AUTH_URL` instead of `BAF_TOKEN_URL`
-- Use `BAF_API_BASE_URL` instead of `BAF_API_URL`
+Then in your code:
 
-For detailed instructions on how to obtain these credentials, see:
-https://wiki.one.int.sap/wiki/pages/viewpage.action?spaceKey=CONAIEXP&title=Setting+up+Project+Agent+Builder+in+BTP
+```python
+from baf_client import BAFClient
+
+# Creates a client using environment variables
+baf = BAFClient(name="My Agent")
+```
+
+### Option 3: Interactive Setup
+
+If no credentials are provided or found in the cache, the SDK will interactively prompt you for the path to your credentials file:
+
+```python
+# Will prompt for credentials if none are found
+baf = BAFClient(name="My Agent")
+```
 
 ## Usage Examples
 
@@ -37,31 +84,38 @@ Create a simple agent that responds to messages:
 
 ```python
 import asyncio
-import os
-from baf_agent import BAFAgent
+from baf_client import BAFClient, OutputFormat, ModelType
 
-# Create the application
-baf = BAFAgent("Size Estimator")
-
-@baf.agent(instruction="Given an object, respond only with an estimate of its size.")
-async def main(agent_ctx):
-    async with agent_ctx as agent:
-        # Example of single message
-        moon_size = await agent("the moon")
-        print(f"Moon size: {moon_size}")
-        
-        # Interactive chat
-        await agent.interactive()
-
-if __name__ == "__main__":
-    # Set up BAF API credentials from environment variables
-    baf.configure(
-        client_id=os.environ.get("BAF_CLIENT_ID"),
-        client_secret=os.environ.get("BAF_CLIENT_SECRET"),
-        token_url=os.environ.get("BAF_AUTH_URL"),
-        api_url=os.environ.get("BAF_API_BASE_URL")
+async def main():
+    # Create the BAF client - will use cached credentials or prompt for them
+    baf = BAFClient(name="Simple Test Agent")
+    
+    # Create an agent
+    agent = await baf.create_agent(
+        initial_instructions="You are a helpful assistant that provides concise answers.",
+        expert_in="Providing factual information",
+        base_model=ModelType.OPENAI_GPT4O_MINI,
+        advanced_model=ModelType.OPENAI_GPT4O
     )
     
+    # Get a response in default Markdown format
+    md_response = await agent("What is the capital of France?")
+    print(f"Markdown response: {md_response}")
+    
+    # Get a response in Text format
+    text_response = await agent("List three planets in our solar system.", 
+                              output_format=OutputFormat.TEXT)
+    print(f"Text response: {text_response}")
+    
+    # Get a response in JSON format
+    json_response = await agent("Give me the population of the 3 most populous countries.", 
+                             output_format=OutputFormat.JSON)
+    print(f"JSON response: {json_response}")
+    
+    # Interactive chat mode
+    await agent.interactive()
+
+if __name__ == "__main__":
     asyncio.run(main())
 ```
 
@@ -71,173 +125,170 @@ Create an agent that can answer questions about documents:
 
 ```python
 import asyncio
-import os
-from baf_agent import BAFAgent
+from baf_client import BAFClient, ToolType
 
-# Create the application
-baf = BAFAgent("Document Assistant")
-
-@baf.agent(instruction="You are an assistant that helps answer questions about documents.")
-async def main(agent_ctx):
-    # Create the agent
-    async with agent_ctx as agent:
-        # Add a document tool
-        doc_tool_id = await baf.add_tool(
-            name="Document Tool",
-            tool_type="document"
-        )
-        
-        # Add a sample document
-        sample_content = """
-        # Project Overview
-        
-        This document provides information about our company's Q3 financial results.
-        
-        ## Revenue
-        
-        Total revenue: $5.2 million
-        Growth from Q2: 15%
-        
-        ## Expenses
-        
-        Total expenses: $3.8 million
-        """
-        
-        resource_id = await baf.add_document(
-            tool_name="Document Tool",
-            doc_name="Q3 Financial Report",
-            content=sample_content,
-            content_type="text/markdown"
-        )
-        
-        print("Document added successfully. You can now ask questions about it.")
-        
-        # Interactive chat
-        await agent.interactive()
-
-if __name__ == "__main__":
-    # Configure BAF credentials
-    baf.configure(
-        client_id=os.environ.get("BAF_CLIENT_ID"),
-        client_secret=os.environ.get("BAF_CLIENT_SECRET"),
-        token_url=os.environ.get("BAF_AUTH_URL"),
-        api_url=os.environ.get("BAF_API_BASE_URL")
+async def main():
+    # Create the BAF client
+    baf = BAFClient(name="Document Assistant")
+    
+    # Create an agent
+    agent = await baf.create_agent(
+        initial_instructions="You are an assistant that helps answer questions about documents.",
+        expert_in="Document analysis"
     )
     
+    # Add a document tool
+    tool_id = await baf.add_tool(
+        name="Document Tool",
+        tool_type=ToolType.DOCUMENT
+    )
+    
+    # Add a sample document
+    sample_content = """
+    # Project Overview
+    
+    This document provides information about our company's Q3 financial results.
+    
+    ## Revenue
+    
+    Total revenue: $5.2 million
+    Growth from Q2: 15%
+    
+    ## Expenses
+    
+    Total expenses: $3.8 million
+    """
+    
+    await baf.add_document(
+        doc_name="Q3 Financial Report",
+        content=sample_content,
+        content_type="text/markdown"
+    )
+    
+    print("Document added successfully. You can now ask questions about it.")
+    
+    # List available documents
+    documents = await agent.list_documents()
+    print(f"Available documents: {documents}")
+    
+    # Ask questions about the document
+    response = await agent("What was the total revenue in Q3?")
+    print(f"Agent response: {response}")
+    
+    # Interactive chat
+    await agent.interactive()
+
+if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-### JSON Output
+### Web Search Tool
 
-Create an agent that returns structured JSON data:
+Create an agent that can search the web for information:
 
 ```python
 import asyncio
-import json
-import os
-from baf_agent import BAFAgent
+from baf_client import BAFClient, ToolType
 
-# Create the application
-baf = BAFAgent("Product Analyzer")
-
-# Define a JSON schema for product analysis
-PRODUCT_SCHEMA = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "description": "Product analysis result",
-    "type": "object",
-    "properties": {
-        "productName": {
-            "type": "string",
-            "description": "The name of the product"
-        },
-        "estimatedPrice": {
-            "type": "number",
-            "description": "The estimated price in USD"
-        },
-        "features": {
-            "type": "array",
-            "description": "List of key product features",
-            "items": {
-                "type": "string"
-            }
-        },
-        "rating": {
-            "type": "number",
-            "description": "Rating from 1-10",
-            "minimum": 1,
-            "maximum": 10
-        }
-    },
-    "required": [
-        "productName",
-        "estimatedPrice",
-        "features",
-        "rating"
-    ]
-}
-
-@baf.agent(
-    instruction="You are a product analyst expert. Analyze products and provide structured information.",
-    defaultOutputFormat="JSON", 
-    defaultOutputFormatOptions=json.dumps(PRODUCT_SCHEMA)
-)
-async def main(agent_ctx):
-    async with agent_ctx as agent:
-        # Example of getting a structured JSON response
-        product_info = await agent("Analyze Apple iPhone 14")
-        
-        # Parse the result
-        result = json.loads(product_info)
-        print(f"Name: {result['productName']}")
-        print(f"Price: ${result['estimatedPrice']}")
-        
-        # Interactive mode
-        await agent.interactive()
-
-if __name__ == "__main__":
-    # Configure BAF
-    baf.configure(
-        client_id=os.environ.get("BAF_CLIENT_ID"),
-        client_secret=os.environ.get("BAF_CLIENT_SECRET"),
-        token_url=os.environ.get("BAF_AUTH_URL"),
-        api_url=os.environ.get("BAF_API_BASE_URL")
+async def main():
+    # Create the BAF client
+    baf = BAFClient(name="Research Assistant")
+    
+    # Create an agent
+    agent = await baf.create_agent(
+        initial_instructions="You are a research assistant that can search the web for information.",
+        expert_in="Internet research"
     )
     
+    # Add a web search tool
+    tool_id = await baf.add_tool(
+        name="Web Search",
+        tool_type=ToolType.WEBSEARCH
+    )
+    
+    # Wait for tool to be ready
+    await baf._wait_for_tool_ready(tool_id)
+    
+    # Ask questions that require web search
+    response = await agent("What is the current population of Tokyo?")
+    print(f"Agent response: {response}")
+    
+    # Interactive chat
+    await agent.interactive()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### Human Tool for Interactive Assistance
+
+Create an agent that can ask a human for help:
+
+```python
+import asyncio
+from baf_client import BAFClient, ToolType
+
+async def main():
+    # Create the BAF client
+    baf = BAFClient(name="Interactive Assistant")
+    
+    # Create an agent
+    agent = await baf.create_agent(
+        initial_instructions="""You are an assistant that can ask a human for help. 
+        If you don't know something, ask the human.""",
+        expert_in="Interactive problem solving"
+    )
+    
+    # Add a human tool
+    tool_id = await baf.add_tool(
+        name="Ask Human",
+        tool_type=ToolType.HUMAN
+    )
+    
+    print("Human tool added successfully. The agent can now ask for human help.")
+    
+    # Start interactive session
+    await agent.interactive()
+
+if __name__ == "__main__":
     asyncio.run(main())
 ```
 
 ## API Reference
 
-### BAFAgent Class
+### BAFClient Class
 
 ```python
-BAFAgent(name: str = "BAF Agent Wrapper")
+BAFClient(credentials_path: str = None, name: str = "BAF Client Wrapper")
 ```
 
-The main class for creating and managing BAF agents.
+The main class for creating and managing BAF clients.
 
 #### Methods
 
-- `configure(client_id: str, client_secret: str, token_url: str, api_url: str)`: Configure BAF API credentials
-- `add_tool(name: str, tool_type: str, **kwargs) -> str`: Add a tool to the agent
-- `add_document(tool_name: str, doc_name: str, content: Union[str, bytes], content_type: str = "text/plain") -> str`: Add a document resource to a document tool
-- `agent(instruction: str = None, **kwargs)`: Decorator to create a BAF agent
-- `run()`: Context manager for running the agent
+- `configure(client_id: str, client_secret: str, token_url: str, api_url: str)`: Configure BAF API credentials programmatically
+- `add_tool(name: str, tool_type: Union[ToolType, str], **kwargs) -> str`: Add a tool to the agent
+- `add_document(doc_name: str, content: Union[str, bytes], content_type: str = "text/plain") -> str`: Add a document resource
+- `create_agent(...)`: Create a BAF agent with various configuration options
+- `get_interface(chat_id: str = None)`: Get an interface for an existing agent
+- `run(chat_id: str = None)`: Context manager for running the agent
 
 ### AgentInterface Class
 
-```python
-AgentInterface(baf_agent: BAFAgent, client: httpx.AsyncClient)
-```
-
-Interface for interacting with a BAF Agent, returned by the context manager.
+Interface for interacting with a BAF Agent.
 
 #### Methods
 
-- `__call__(message: str, output_format: str = "Markdown", output_format_options: str = None) -> str`: Send a message to the agent
+- `__call__(message: str, output_format: OutputFormat = OutputFormat.MARKDOWN, output_format_options: str = None) -> str`: Send a message to the agent
+- `send_message(...)`: Same as `__call__` but with a different name
 - `interactive()`: Start an interactive chat session with the agent
 - `continue_message(history_id: str, observation: str) -> str`: Continue a message that was interrupted by a tool
 - `cancel()`: Cancel the current chat
+- `list_documents()`: List all documents added to the agent
+- `get_document_content(doc_name: str)`: Get the content of a document
+- `remove_document(doc_name: str)`: Remove a document from the agent
+- `list_tools()`: List all tools added to the agent
+- `get_tool_names()`: Get the names of all tools added to the agent
 
 ## Setting Up BAF API Credentials
 
@@ -245,16 +296,7 @@ To use this wrapper, you need to obtain BAF API credentials:
 
 1. Create a Project Agent Builder service instance in your BTP subaccount
 2. Create a service key for the service instance
-3. Extract the required credentials from the service key
+3. Download the service key JSON file (agent-binding.json)
+4. Use the file path when creating a BAFClient instance
 
-For more information, see the [Project Agent Builder API documentation](https://your-documentation-url.com).
-
-## Limitations
-
-- This wrapper is designed for simple agent usage. For more advanced use cases, you may need to use the BAF API directly.
-- Error handling is minimal and should be expanded for production use.
-- The wrapper doesn't support all BAF API features, such as custom models or bring-your-own tools.
-
-## License
-
-MIT 
+See the SAP documentation for more details: https://wiki.one.int.sap/wiki/pages/viewpage.action?spaceKey=CONAIEXP&title=Setting+up+Project+Agent+Builder+in+BTP 
