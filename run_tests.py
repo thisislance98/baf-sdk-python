@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Run BAF agent tests one at a time.
+Run PAB agent tests one at a time.
 This allows for easier debugging and clearer output.
 """
 
 import asyncio
 import sys
-from test_baf_agent import (
-    test_create_smart_agent_with_gpt4o,
+from test_pab_agent import (
+    test_create_openai_agent_with_gpt4o,
     test_create_basic_agent,
-    test_create_claude_agent,
+    test_create_vertexai_agent,
     test_agent_with_different_output_formats,
     test_agent_with_context_manager
 )
@@ -32,9 +32,9 @@ async def run_test(test_func, name):
 async def main():
     """Run all tests sequentially"""
     tests = [
-        (test_create_smart_agent_with_gpt4o, "Smart Agent with GPT-4o"),
+        (test_create_openai_agent_with_gpt4o, "OpenAI Agent with GPT-4o"),
         (test_create_basic_agent, "Basic Agent"),
-        (test_create_claude_agent, "Claude Agent"),
+        (test_create_vertexai_agent, "VertexAI Agent"),
         (test_agent_with_different_output_formats, "Agent with Different Output Formats"),
         (test_agent_with_context_manager, "Agent with Context Manager")
     ]

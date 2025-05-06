@@ -7,8 +7,8 @@ This example shows how to create a basic agent and have a conversation with it.
 
 import time
 import logging
-from baf_sdk import AgentBuilderClient, Agent, Chat, OutputFormat
-from baf_sdk.models import ChatState
+from pab_sdk import AgentBuilderClient, Agent, Chat, OutputFormat
+from pab_sdk.models import ChatState
 
 def main():
     # Configure logging - setting to INFO level to reduce verbosity
@@ -16,7 +16,7 @@ def main():
         level=logging.INFO,  # Changed from DEBUG to INFO to reduce verbosity
         format='%(levelname)s: %(message)s'  # Simplified format
     )
-    logger = logging.getLogger("baf_sdk")
+    logger = logging.getLogger("pab_sdk")
     logger.setLevel(logging.WARNING)  # Only show warnings and errors from the SDK
     
     # Print welcome message

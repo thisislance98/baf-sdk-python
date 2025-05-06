@@ -1,20 +1,20 @@
-# BAF SDK Project Architecture and Planning
+# PAB SDK Project Architecture and Planning
 
 ## Project Overview
-The BAF SDK is a Python wrapper for the Project Agent Builder (BAF) API. It provides a simplified interface for creating, configuring, and interacting with AI agents. The SDK handles authentication, API communication, and provides a user-friendly way to work with the BAF API.
+The PAB SDK is a Python wrapper for the Project Agent Builder (PAB) API. It provides a simplified interface for creating, configuring, and interacting with AI agents. The SDK handles authentication, API communication, and provides a user-friendly way to work with the PAB API.
 
 ## Architecture
 
 ### Core Components
-1. **BAFAgent Class**: The main entry point for the SDK, handling agent creation and configuration
-2. **Auth Module**: Manages authentication with the BAF API service
-3. **Client Module**: Handles HTTP requests to the BAF API
+1. **PABClient Class**: The main entry point for the SDK, handling agent creation and configuration
+2. **Auth Module**: Manages authentication with the PAB API service
+3. **Client Module**: Handles HTTP requests to the PAB API
 4. **Models Module**: Contains data models for the SDK
 5. **Exceptions Module**: Custom exceptions for the SDK
 
 ### Directory Structure
 ```
-baf_sdk/
+pab_sdk/
 ├── __init__.py       # Package initialization and version info
 ├── auth.py           # Authentication handling
 ├── client.py         # API client implementation
@@ -53,7 +53,7 @@ docs/                 # Documentation
   3. Local application imports
 
 ## Future Development Goals
-- Implement more BAF API endpoints
+- Implement more PAB API endpoints
 - Add more examples for common use cases
 - Improve error handling and reporting
 - Add comprehensive logging

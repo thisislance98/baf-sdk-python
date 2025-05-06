@@ -1,1 +1,1 @@
-"""Example scripts for the BAF SDK.""" 
+"""Example scripts for the PAB SDK.""" 

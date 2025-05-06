@@ -1,4 +1,4 @@
-# BAF SDK Project Tasks
+# PAB SDK Project Tasks
 
 ## Current Tasks
 - [x] Initialize project repository
@@ -10,7 +10,7 @@
 - [x] Create documentation in README.md
 - [x] Create PLANNING.md with architecture details
 - [ ] Add more comprehensive error handling
-- [ ] Implement more BAF API endpoints
+- [ ] Implement more PAB API endpoints
 - [ ] Add more example implementations
 - [ ] Create comprehensive test suite
 - [ ] Create detailed API documentation
@@ -19,6 +19,7 @@
 - [x] Initial SDK implementation with core functionality (2023-08-15)
 - [x] Basic examples added (2023-09-01)
 - [x] GitHub repository setup (2023-10-05)
+- [x] Rename project from BAF to PAB (2023-10-20)
 
 ## Discovered During Work
 - [ ] Need to improve error handling for API rate limits

@@ -1,31 +1,31 @@
 #!/usr/bin/env python3
 """
-Run a single BAF agent test with more detailed error reporting
+Run a single PAB agent test with more detailed error reporting
 """
 
 import asyncio
 import traceback
 import json
-from baf_client import BAFAgent, AgentType, ModelType
+from pab_client import PABClient, AgentType, ModelType
 
 async def test_create_simple_agent():
     """Test creating a simple agent with verbose error output"""
     try:
-        print("Creating BAF Agent...")
-        baf = BAFAgent("Simple Test Agent")
+        print("Creating PAB Client...")
+        pab = PABClient("Simple Test Agent")
         
         # Let's first check authentication is working
         print("Testing authentication...")
-        await baf._get_token()
+        await pab._get_token()
         print("Authentication successful!")
         
         # Configure client with extra debugging
-        client = await baf._get_client()
+        client = await pab._get_client()
         
         print("Creating simple agent with minimal configuration...")
         agent_config = {
             "name": "Simple Test Agent",
-            "type": "smart",
+            "type": AgentType.OPENAI.value,
             "expertIn": "Testing",
             "initialInstructions": "You are a test agent."
         }
