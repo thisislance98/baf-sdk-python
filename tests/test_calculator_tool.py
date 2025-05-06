@@ -1,11 +1,13 @@
 import asyncio
 import json
-from baf_client import BAFClient, ToolType, ModelType, OutputFormat
+from pab_client import PABClient, ToolType, ModelType, AgentType, OutputFormat
 
 async def test_calculator_tool():
-    """Test the BAF calculator tool"""
-    # Initialize the BAF client
-    client = BAFClient()
+    """Test the PAB calculator tool"""
+    # Initialize the PAB client
+    # Get path to the credentials file
+    credentials_path = "agent-binding.json"
+    client = PABClient(credentials_path)
     
     # Create an agent with custom name
     agent = await client.create_agent(
@@ -13,7 +15,8 @@ async def test_calculator_tool():
         initial_instructions="You are a helpful assistant with access to a calculator tool. Use it when mathematical calculations are required.",
         expert_in="Math and numerical calculations",
         base_model=ModelType.OPENAI_GPT4O_MINI,
-        advanced_model=ModelType.OPENAI_GPT4O
+        advanced_model=ModelType.OPENAI_GPT4O,
+        agent_type=AgentType.SMART
     )
     
     # Add calculator tool
@@ -27,14 +30,20 @@ async def test_calculator_tool():
     question = "What is the square root of 144 plus 50 divided by 2?"
     print(f"\nAsking: {question}")
     
-    response = await agent(question)
+    response = await agent.send_message(
+        question,
+        output_format=OutputFormat.MARKDOWN
+    )
     print(f"\nResponse: {response}")
     
     # Test with a more complex calculation
     question = "If I invest $1000 with 5% annual compound interest, how much will I have after 10 years?"
     print(f"\nAsking: {question}")
     
-    response = await agent(question)
+    response = await agent.send_message(
+        question,
+        output_format=OutputFormat.MARKDOWN
+    )
     print(f"\nResponse: {response}")
     
     # List available tools
