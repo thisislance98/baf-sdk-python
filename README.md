@@ -4,12 +4,16 @@ A Python SDK wrapper for the Project Agent Builder (PAB) API that provides an ea
 
 ## Installation
 
-1. Clone this repository
-2. Install the required dependencies:
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/yourusername/pab-sdk.git
+   cd pab-sdk
+   ```
 
-```bash
-pip install httpx python-dotenv
-```
+2. Install the required dependencies using the requirements.txt file:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Setup
 
@@ -33,7 +37,10 @@ async def main():
         expert_in="Providing information"
     )
     
-    response = await agent("What is the capital of France?")
+    response = await agent.send_message(
+        "What is the capital of France?",
+        output_format=OutputFormat.MARKDOWN
+    )
     print(response)
 
 if __name__ == "__main__":
@@ -99,17 +106,24 @@ async def main():
     )
     
     # Get a response in default Markdown format
-    md_response = await agent("What is the capital of France?")
+    md_response = await agent.send_message(
+        "What is the capital of France?",
+        output_format=OutputFormat.MARKDOWN
+    )
     print(f"Markdown response: {md_response}")
     
     # Get a response in Text format
-    text_response = await agent("List three planets in our solar system.", 
-                              output_format=OutputFormat.TEXT)
+    text_response = await agent.send_message(
+        "List three planets in our solar system.", 
+        output_format=OutputFormat.TEXT
+    )
     print(f"Text response: {text_response}")
     
     # Get a response in JSON format
-    json_response = await agent("Give me the population of the 3 most populous countries.", 
-                             output_format=OutputFormat.JSON)
+    json_response = await agent.send_message(
+        "Give me the population of the 3 most populous countries.", 
+        output_format=OutputFormat.JSON
+    )
     print(f"JSON response: {json_response}")
     
     # Interactive chat mode
@@ -125,7 +139,7 @@ Create an agent that can answer questions about documents:
 
 ```python
 import asyncio
-from pab_client import PABClient, ToolType
+from pab_client import PABClient, ToolType, OutputFormat
 
 async def main():
     # Create the PAB client
@@ -139,7 +153,7 @@ async def main():
     
     # Add a document tool
     tool_id = await pab.add_tool(
-        name="Document Tool",
+        name="document",  # Important: Must be named "document" 
         tool_type=ToolType.DOCUMENT
     )
     
@@ -172,7 +186,10 @@ async def main():
     print(f"Available documents: {documents}")
     
     # Ask questions about the document
-    response = await agent("What was the total revenue in Q3?")
+    response = await agent.send_message(
+        "What was the total revenue in Q3?",
+        output_format=OutputFormat.MARKDOWN
+    )
     print(f"Agent response: {response}")
     
     # Interactive chat
@@ -188,7 +205,7 @@ Create an agent that can ask a human for help:
 
 ```python
 import asyncio
-from pab_client import PABClient, ToolType
+from pab_client import PABClient, ToolType, OutputFormat
 
 async def main():
     # Create the PAB client
@@ -203,7 +220,7 @@ async def main():
     
     # Add a human tool
     tool_id = await pab.add_tool(
-        name="Ask Human",
+        name="human",  # Important: Must use standard name
         tool_type=ToolType.HUMAN
     )
     
