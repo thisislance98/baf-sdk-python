@@ -24,13 +24,13 @@ async def test_smart_agent():
         credentials_path = parent_dir / "agent-binding.json"
         print(f"Credentials file should be available at: {credentials_path}")
         
-        print("Creating first PABClient using cached credentials...")
-        # First client with no explicit credentials path - should use cached
-        pab1 = PABClient(name="Smart Test Agent 1")
+        print("Creating first PABClient using explicit credentials path...")
+        # First client with explicit credentials path
+        pab1 = PABClient(str(credentials_path), "Smart Test Agent 1")
         
-        print("Creating second PABClient also using cached credentials...")
-        # Second client without credentials path - should use cached
-        pab2 = PABClient(name="Smart Test Agent 2")
+        print("Creating second PABClient also using explicit credentials path...")
+        # Second client with explicit credentials path
+        pab2 = PABClient(str(credentials_path), "Smart Test Agent 2")
         
         print("Authenticating...")
         
