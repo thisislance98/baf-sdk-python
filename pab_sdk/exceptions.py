@@ -1,5 +1,5 @@
 """
-Exception classes for the BAF SDK.
+Exception classes for the PAB SDK.
 
 This module contains custom exception classes used throughout the SDK.
 """

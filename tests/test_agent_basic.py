@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test creating and using a smart BAF agent
+Test creating and using a smart PAB agent
 """
 
 import pytest
@@ -13,7 +13,7 @@ import uuid
 from pathlib import Path
 
 # Import from parent directory
-from baf_client import BAFClient, ModelType, AgentType, OutputFormat
+from pab_client import PABClient, ModelType, AgentType, OutputFormat
 
 async def test_smart_agent():
     """Test creating a smart agent and using it with different output formats"""
@@ -24,18 +24,18 @@ async def test_smart_agent():
         credentials_path = parent_dir / "agent-binding.json"
         print(f"Credentials file should be available at: {credentials_path}")
         
-        print("Creating first BAFClient using cached credentials...")
+        print("Creating first PABClient using cached credentials...")
         # First client with no explicit credentials path - should use cached
-        baf1 = BAFClient(name="Smart Test Agent 1")
+        pab1 = PABClient(name="Smart Test Agent 1")
         
-        print("Creating second BAFClient also using cached credentials...")
+        print("Creating second PABClient also using cached credentials...")
         # Second client without credentials path - should use cached
-        baf2 = BAFClient(name="Smart Test Agent 2")
+        pab2 = PABClient(name="Smart Test Agent 2")
         
         print("Authenticating...")
         
         print("Creating smart agent...")
-        agent = await baf2.create_agent(
+        agent = await pab2.create_agent(
             initial_instructions="You are a helpful assistant that provides concise answers.",
             expert_in="Providing factual information"
         )
@@ -44,19 +44,26 @@ async def test_smart_agent():
         
         # Test with default markdown output
         print("\nTesting with markdown output...")
-        md_response = await agent("What is the capital of France?")
+        md_response = await agent.send_message(
+            "What is the capital of France?",
+            output_format=OutputFormat.MARKDOWN
+        )
         print(f"Markdown response: {md_response}")
         
         # Test with text output
         print("\nTesting with text output...")
-        text_response = await agent("List three planets in our solar system.", 
-                                   output_format=OutputFormat.TEXT)
+        text_response = await agent.send_message(
+            "List three planets in our solar system.", 
+            output_format=OutputFormat.TEXT
+        )
         print(f"Text response: {text_response}")
         
         # Test with JSON output
         print("\nTesting with JSON output...")
-        json_response = await agent("Give me the population of the 3 most populous countries.", 
-                                  output_format=OutputFormat.JSON)
+        json_response = await agent.send_message(
+            "Give me the population of the 3 most populous countries.", 
+            output_format=OutputFormat.JSON
+        )
         print(f"JSON response: {json_response}")
         
         print("\nAll tests completed successfully!")

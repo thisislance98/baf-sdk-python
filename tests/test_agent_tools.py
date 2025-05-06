@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test creating a BAF agent with tools and using them with different queries
+Test creating a PAB agent with tools and using them with different queries
 """
 
 import pytest
@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 # Import from parent directory
-from baf_client import BAFClient, ModelType, AgentType, OutputFormat
+from pab_client import PABClient, ModelType, AgentType, OutputFormat, ToolType
 
 async def test_agent_with_tools():
     """Test creating an agent with tools and using them"""
@@ -22,13 +22,13 @@ async def test_agent_with_tools():
         parent_dir = current_dir.parent
         credentials_path = parent_dir / "agent-binding.json"
 
-        baf = BAFClient(str(credentials_path), "Agent with Tools Test")
+        pab = PABClient(str(credentials_path), "Agent with Tools Test")
         
         print("Authenticating...")
-        await baf._get_token()
+        await pab._get_token()
         
         print("Creating agent...")
-        agent = await baf.create_agent(
+        agent = await pab.create_agent(
             initial_instructions="You are a helpful assistant that can use tools to provide better answers.",
             expert_in="Answering questions using available tools when appropriate",
             agent_type=AgentType.SMART,
@@ -41,9 +41,10 @@ async def test_agent_with_tools():
         # Add document tool with exception handling
         try:
             print("\nAdding document tool...")
-            doc_tool_id = await baf.add_tool(
-                name="Company Knowledge Base",
-                tool_type="document"
+            # Note: Tool must be named "document" for the SDK to work with it
+            doc_tool_id = await pab.add_tool(
+                name="document",  # This is the standard name expected by the SDK
+                tool_type=ToolType.DOCUMENT
             )
             print(f"Document tool created with ID: {doc_tool_id}")
             
@@ -77,8 +78,7 @@ async def test_agent_with_tools():
             """
             
             print("\nAdding document to the tool...")
-            doc_id = await baf.add_document(
-                tool_name="Company Knowledge Base",
+            doc_id = await pab.add_document(
                 doc_name="TechNova Company Overview",
                 content=sample_text
             )
@@ -89,24 +89,30 @@ async def test_agent_with_tools():
         
         # Test with document query
         print("\nTesting document query...")
-        doc_response = await agent("What are the four core technology domains of TechNova Solutions?")
+        doc_response = await agent.send_message(
+            "What are the four core technology domains of TechNova Solutions?",
+            output_format=OutputFormat.MARKDOWN
+        )
         print(f"Document query response: {doc_response}")
         
         # Test with a follow-up question
         print("\nTesting follow-up question...")
-        followup_response = await agent("What are the key features of TechNova's products?")
+        followup_response = await agent.send_message(
+            "What are the key features of TechNova's products?",
+            output_format=OutputFormat.MARKDOWN
+        )
         print(f"Follow-up response: {followup_response}")
         
         # Test different output formats
         print("\nTesting JSON output format...")
-        json_response = await agent(
+        json_response = await agent.send_message(
             "List the four core technology domains of TechNova Solutions in JSON format.", 
             output_format=OutputFormat.JSON
         )
         print(f"JSON response: {json_response}")
         
         print("\nTesting text output format...")
-        text_response = await agent(
+        text_response = await agent.send_message(
             "Explain what TechNova Solutions is in plain text.", 
             output_format=OutputFormat.TEXT
         )
@@ -114,7 +120,10 @@ async def test_agent_with_tools():
         
         # Ask about client success
         print("\nAsking about client success...")
-        success_response = await agent("What sectors has TechNova helped and what is their flagship platform?")
+        success_response = await agent.send_message(
+            "What sectors has TechNova helped and what is their flagship platform?",
+            output_format=OutputFormat.MARKDOWN
+        )
         print(f"Success response: {success_response}")
         
         print("\nAll tests completed!")

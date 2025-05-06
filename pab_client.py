@@ -29,10 +29,14 @@ DEFAULT_CACHE_FILE = os.path.expanduser('~/.pab_sdk_cache')
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(levelname)s: %(message)s',  # Simplified format
     handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger('pab_sdk')
+
+# Set httpx logger to WARNING level to reduce verbosity
+httpx_logger = logging.getLogger('httpx')
+httpx_logger.setLevel(logging.WARNING)
 
 # Define enums
 class MessageRole(Enum):
@@ -42,21 +46,21 @@ class MessageRole(Enum):
     TOOL = "tool"
 
 class OutputFormat(Enum):
-    TEXT = "text"
-    MARKDOWN = "markdown"
-    JSON = "json"
+    TEXT = "Text"
+    MARKDOWN = "Markdown"
+    JSON = "JSON"
 
 class ToolType(Enum):
-    DOCUMENT = "documentTool"
-    WEB_SEARCH = "webSearchTool"
-    CODE_EXECUTION = "codeExecutionTool"
-    CALCULATOR = "calculatorTool"
-    HUMAN = "humanTool"
-    JOULE_FUNCTION = "jouleFunctionTool"
-    OPENAPI = "openApiTool"
-    ODATA = "odataTool"
-    HANA = "hanaTool"
-    CUSTOM = "customTool"
+    DOCUMENT = "document"
+    WEB_SEARCH = "webSearch"
+    CODE_EXECUTION = "codeExecution"
+    CALCULATOR = "calculator"
+    HUMAN = "human"
+    JOULE_FUNCTION = "jouleFunction"
+    OPENAPI = "openApi"
+    ODATA = "odata"
+    HANA = "hana"
+    CUSTOM = "custom"
 
 class ResourceState(Enum):
     READY = "READY"
@@ -68,13 +72,17 @@ class ChatState(Enum):
     ARCHIVED = "ARCHIVED"
 
 class ModelType(Enum):
-    OPENAI_GPT4O = "gpt-4o"
-    OPENAI_GPT4O_MINI = "gpt-4o-mini"
-    VERTEXAI_GEMINI_PRO = "gemini-pro"
+    OPENAI_GPT4O = "OpenAiGpt4o"
+    OPENAI_GPT4O_MINI = "OpenAiGpt4oMini"
+    MISTRAL_LARGE_INSTRUCT = "MistralAiMistralLargeInstruct"
+    ANTHROPIC_CLAUDE3_SONNET = "AnthropicClaude3Sonnet"
+    ANTHROPIC_CLAUDE35_SONNET = "AnthropicClaude35Sonnet"
+    GOOGLE_GEMINI15_PRO = "GoogleGemini15Pro"
+    GOOGLE_GEMINI1_PRO = "GoogleGemini1Pro"
 
 class AgentType(Enum):
-    OPENAI = "openai"
-    VERTEXAI = "vertexai"
+    # Only one agent type is supported
+    SMART = "smart"
 
 # Main client class
 class PABClient:
@@ -580,7 +588,7 @@ class PABClient:
         initial_instructions: str = "",
         expert_in: str = "",
         name: str = None,
-        agent_type: AgentType = AgentType.OPENAI,
+        agent_type: AgentType = AgentType.SMART,
         safety_check: bool = False,
         iterations: int = 20,
         base_model: ModelType = ModelType.OPENAI_GPT4O_MINI,
@@ -598,7 +606,7 @@ class PABClient:
             initial_instructions: Initial instructions for the agent (default: "")
             expert_in: The agent's area of expertise (maps to expertIn field)
             name: The name of the agent (defaults to self.name)
-            agent_type: The type of agent (default: AgentType.OPENAI)
+            agent_type: The type of agent (default: AgentType.SMART)
             safety_check: Whether to perform safety checks (default: False)
             iterations: Number of iterations for processing (default: 20)
             base_model: Base model for initial processing (default: ModelType.OPENAI_GPT4O_MINI)

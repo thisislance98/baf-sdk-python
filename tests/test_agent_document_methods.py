@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 # Import from parent directory
-from baf_client import BAFClient, ModelType, AgentType, OutputFormat
+from pab_client import PABClient, ModelType, AgentType, OutputFormat
 
 async def test_agent_document_methods():
     """Test using the document management methods directly on the agent interface"""
@@ -22,11 +22,11 @@ async def test_agent_document_methods():
         parent_dir = current_dir.parent
         credentials_path = parent_dir / "agent-binding.json"
         
-        print(f"Creating BAF Agent wrapper with credentials from {credentials_path}...")
-        baf = BAFClient(str(credentials_path), "Document Methods Test")
+        print(f"Creating PAB Agent wrapper with credentials from {credentials_path}...")
+        pab = PABClient(str(credentials_path), "Document Methods Test")
         
         print("Creating agent...")
-        agent = await baf.create_agent(
+        agent = await pab.create_agent(
             initial_instructions="You are a helpful assistant that provides information about documents.",
             expert_in="Accessing and summarizing document information",
             agent_type=AgentType.SMART,
@@ -78,7 +78,10 @@ async def test_agent_document_methods():
         
         # Test with document query
         print("\nTesting query about the document...")
-        response1 = await agent("What are the key components of neural networks according to the document?")
+        response1 = await agent.send_message(
+            "What are the key components of neural networks according to the document?",
+            output_format=OutputFormat.MARKDOWN
+        )
         print(f"Response: {response1}")
         
         # List all documents
@@ -128,7 +131,10 @@ async def test_agent_document_methods():
         
         # Test with a query about both documents
         print("\nTesting query about both documents...")
-        response2 = await agent("Compare neural networks and deep learning based on the documents.")
+        response2 = await agent.send_message(
+            "Compare neural networks and deep learning based on the documents.",
+            output_format=OutputFormat.MARKDOWN
+        )
         print(f"Response: {response2}")
         
         # Remove the first document
@@ -145,7 +151,10 @@ async def test_agent_document_methods():
         
         # Test what happens when querying about removed document
         print("\nQuerying about removed document...")
-        response3 = await agent("What are the key components of neural networks?")
+        response3 = await agent.send_message(
+            "What are the key components of neural networks?",
+            output_format=OutputFormat.MARKDOWN
+        )
         print(f"Response about removed document: {response3}")
         
         print("\nAll tests completed successfully!")
