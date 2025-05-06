@@ -182,44 +182,6 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-### Web Search Tool
-
-Create an agent that can search the web for information:
-
-```python
-import asyncio
-from baf_client import BAFClient, ToolType
-
-async def main():
-    # Create the BAF client
-    baf = BAFClient(name="Research Assistant")
-    
-    # Create an agent
-    agent = await baf.create_agent(
-        initial_instructions="You are a research assistant that can search the web for information.",
-        expert_in="Internet research"
-    )
-    
-    # Add a web search tool
-    tool_id = await baf.add_tool(
-        name="Web Search",
-        tool_type=ToolType.WEBSEARCH
-    )
-    
-    # Wait for tool to be ready
-    await baf._wait_for_tool_ready(tool_id)
-    
-    # Ask questions that require web search
-    response = await agent("What is the current population of Tokyo?")
-    print(f"Agent response: {response}")
-    
-    # Interactive chat
-    await agent.interactive()
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
 ### Human Tool for Interactive Assistance
 
 Create an agent that can ask a human for help:
