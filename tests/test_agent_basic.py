@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""
+Test creating and using a smart BAF agent
+"""
+
+import pytest
+import asyncio
+import os
+import tempfile
+import httpx
+import json
+import uuid
+from pathlib import Path
+
+# Import from parent directory
+from baf_client import BAFClient, ModelType, AgentType, OutputFormat
+
+async def test_smart_agent():
+    """Test creating a smart agent and using it with different output formats"""
+    try:
+        # Get the path to the credentials file in the parent directory (for display only)
+        current_dir = Path(__file__).parent
+        parent_dir = current_dir.parent
+        credentials_path = parent_dir / "agent-binding.json"
+        print(f"Credentials file should be available at: {credentials_path}")
+        
+        print("Creating first BAFClient using cached credentials...")
+        # First client with no explicit credentials path - should use cached
+        baf1 = BAFClient(name="Smart Test Agent 1")
+        
+        print("Creating second BAFClient also using cached credentials...")
+        # Second client without credentials path - should use cached
+        baf2 = BAFClient(name="Smart Test Agent 2")
+        
+        print("Authenticating...")
+        
+        print("Creating smart agent...")
+        agent = await baf2.create_agent(
+            initial_instructions="You are a helpful assistant that provides concise answers.",
+            expert_in="Providing factual information"
+        )
+        
+        print("Smart agent created successfully!")
+        
+        # Test with default markdown output
+        print("\nTesting with markdown output...")
+        md_response = await agent("What is the capital of France?")
+        print(f"Markdown response: {md_response}")
+        
+        # Test with text output
+        print("\nTesting with text output...")
+        text_response = await agent("List three planets in our solar system.", 
+                                   output_format=OutputFormat.TEXT)
+        print(f"Text response: {text_response}")
+        
+        # Test with JSON output
+        print("\nTesting with JSON output...")
+        json_response = await agent("Give me the population of the 3 most populous countries.", 
+                                  output_format=OutputFormat.JSON)
+        print(f"JSON response: {json_response}")
+        
+        print("\nAll tests completed successfully!")
+        return True
+        
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        if hasattr(e, 'response'):
+            print(f"Status code: {e.response.status_code}")
+            print(f"Response body: {e.response.text}")
+        return False
+
+if __name__ == "__main__":
+    asyncio.run(test_smart_agent()) 
