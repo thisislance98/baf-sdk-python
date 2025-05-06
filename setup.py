@@ -1,11 +1,11 @@
 """
-Setup file for the BAF SDK.
+Setup file for the PAB SDK.
 """
 
 from setuptools import setup, find_packages
 
 setup(
-    name="baf-sdk",
+    name="pab-sdk",
     version="0.1.0",
     description="Python SDK for the Project Agent Builder API",
     author="SAP",
