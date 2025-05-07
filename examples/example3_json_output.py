@@ -8,7 +8,7 @@ This example shows how to get structured JSON output from an agent.
 import os
 import json
 import uuid
-from baf_sdk import AgentBuilderClient, Agent, Chat, OutputFormat
+from pab_sdk import AgentBuilderClient, Agent, Chat, OutputFormat
 
 # Get authentication details from environment variables
 # Remember to set these in your environment or .env file

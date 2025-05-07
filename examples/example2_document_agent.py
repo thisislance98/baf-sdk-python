@@ -11,8 +11,8 @@ import time
 import requests
 import urllib.parse
 from dotenv import load_dotenv
-from baf_sdk import AgentBuilderClient, Agent, Chat, Tool, Resource, ToolType
-from baf_sdk.models import Message, ChatState
+from pab_sdk import AgentBuilderClient, Agent, Chat, Tool, Resource, ToolType
+from pab_sdk.models import Message, ChatState
 
 # Load environment variables from .env file
 load_dotenv()

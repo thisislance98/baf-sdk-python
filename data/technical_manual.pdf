@@ -1,0 +1,53 @@
+%PDF-1.4
+1 0 obj
+<</Type /Catalog /Pages 2 0 R>>
+endobj
+2 0 obj
+<</Type /Pages /Kids [3 0 R] /Count 1>>
+endobj
+3 0 obj
+<</Type /Page /Parent 2 0 R /Resources 4 0 R /MediaBox [0 0 500 800] /Contents 6 0 R>>
+endobj
+4 0 obj
+<</Font <</F1 5 0 R>>>>
+endobj
+5 0 obj
+<</Type /Font /Subtype /Type1 /BaseFont /Helvetica>>
+endobj
+6 0 obj
+<</Length 340>>
+stream
+BT
+/F1 24 Tf
+50 700 Td
+(Technical Manual) Tj
+/F1 12 Tf
+0 -50 Td
+(System Requirements:) Tj
+0 -20 Td
+(- Operating System: Windows 10, macOS 11+, or Linux Ubuntu 20.04+) Tj
+0 -20 Td
+(- RAM: Minimum 8GB, Recommended 16GB) Tj
+0 -20 Td
+(- Processor: Intel i5 or equivalent, 2.5GHz or faster) Tj
+0 -20 Td
+(- Storage: 50GB available space) Tj
+0 -20 Td
+(- Network: Broadband internet connection) Tj
+ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f
+0000000009 00000 n
+0000000056 00000 n
+0000000111 00000 n
+0000000212 00000 n
+0000000253 00000 n
+0000000321 00000 n
+trailer
+<</Size 7/Root 1 0 R>>
+startxref
+710
+%%EOF 
