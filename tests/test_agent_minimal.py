@@ -15,7 +15,7 @@ from pathlib import Path
 parent_dir = str(pathlib.Path(__file__).parent.parent)
 sys.path.insert(0, parent_dir)
 
-from baf_client import BAFClient, ModelType, AgentType, OutputFormat
+from pab_client import PABClient, ModelType, AgentType, OutputFormat
 
 async def test_create_and_use_agent():
     """Test creating a simple agent and using it with different output formats"""
@@ -23,7 +23,7 @@ async def test_create_and_use_agent():
         print("Creating BAF Agent wrapper...")
         # Use .. to reference parent directory
         credentials_path = os.path.join("..", "agent-binding.json")
-        baf = BAFClient(credentials_path, "Minimal Test Agent")
+        baf = PABClient(credentials_path, "Minimal Test Agent")
         
         print("Authenticating...")
         await baf._get_token()
